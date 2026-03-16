@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Profesional</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="topbar">
+      <h1>Panel Profesional</h1>
+      <button onclick="logout()">Salir</button>
+    </header>
+
+    <section class="card">
+      <h2>Mis pacientes</h2>
+      <div id="listaPacientes"></div>
+    </section>
+
+    <section class="card">
+      <h2>Cargar evolución clínica</h2>
+      <form id="evolucionForm">
+        <select id="paciente_id" required></select>
+        <textarea id="detalle" placeholder="Detalle de la atención" required></textarea>
+        <button type="submit">Guardar evolución</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Historial clínico</h2>
+      <div id="historial"></div>
+    </section>
+  </main>
+
+  <script src="/js/profesional.js"></script>
+</body>
+</html>
