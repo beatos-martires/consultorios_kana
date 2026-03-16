@@ -19,22 +19,60 @@ VALUES
 
 INSERT INTO pacientes (
   nombre_completo,
-  edad,
   dni,
+  fecha_nacimiento,
+  edad,
   obra_social,
-  area_id,
-  grupo_familiar,
   observaciones,
-  tutor_id
+  cud_tiene,
+  cud_pdf_url,
+  cud_vencimiento
 )
 VALUES
 (
   'Tomás Gómez',
-  8,
   '55555555',
+  '2017-04-10',
+  8,
   'OSDE',
-  2,
-  'Convive con madre y padre',
   'Primera entrevista',
-  4
+  false,
+  null,
+  null
 );
+
+INSERT INTO paciente_tutores (paciente_id, tutor_id, parentesco)
+VALUES
+(1, 4, 'Madre');
+
+INSERT INTO paciente_profesionales (paciente_id, profesional_id, area_id)
+VALUES
+(1, 2, 2),
+(1, 3, 3);
+
+INSERT INTO sesiones (
+  paciente_id,
+  profesional_id,
+  area_id,
+  fecha,
+  cantidad,
+  monto_unitario,
+  observaciones,
+  cargado_por
+)
+VALUES
+(1, 2, 2, '2026-03-01', 1, 15000, 'Sesión inicial', 1),
+(1, 3, 3, '2026-03-03', 1, 12000, 'Apoyo pedagógico', 1);
+
+INSERT INTO pagos_mensuales (
+  paciente_id, anio, mes, total_calculado, monto_pagado, estado, observaciones
+)
+VALUES
+(1, 2026, 3, 27000, 0, 'pendiente', 'Mes inicial');
+
+INSERT INTO turnos (
+  paciente_id, profesional_id, area_id, fecha, hora, estado, motivo, observaciones, creado_por
+)
+VALUES
+(1, 2, 2, '2026-03-20', '10:00', 'confirmado', 'Seguimiento psicológico', 'Turno de control', 1),
+(1, 3, 3, '2026-03-21', '11:30', 'pendiente', 'Apoyo pedagógico', 'Primera evaluación pedagógica', 1);

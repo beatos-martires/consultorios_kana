@@ -37,9 +37,10 @@ async function cargarPacientes() {
     lista.innerHTML += `
       <div class="item" onclick="verHistorial(${p.id})">
         <strong>${p.nombre_completo}</strong><br>
+        DNI: ${p.dni || "-"}<br>
         Edad: ${p.edad || "-"}<br>
-        Área: ${p.area || "-"}<br>
-        Obra social: ${p.obra_social || "-"}
+        Obra social: ${p.obra_social || "-"}<br>
+        Fecha nacimiento: ${p.fecha_nacimiento ? p.fecha_nacimiento.slice(0,10) : "-"}
       </div>
     `;
 
@@ -52,10 +53,10 @@ async function verHistorial(pacienteId) {
   const evoluciones = await res.json();
 
   const historial = document.getElementById("historial");
-  historial.innerHTML = `<h3>Paciente ID: ${pacienteId}</h3>`;
+  historial.innerHTML = "";
 
   if (!evoluciones.length) {
-    historial.innerHTML += `<p>No hay evoluciones cargadas.</p>`;
+    historial.innerHTML = `<p>No hay evoluciones cargadas para este paciente.</p>`;
     return;
   }
 
@@ -63,6 +64,7 @@ async function verHistorial(pacienteId) {
     historial.innerHTML += `
       <div class="item">
         <strong>${new Date(e.fecha).toLocaleString()}</strong><br>
+        Área: ${e.area}<br>
         Profesional: ${e.profesional}<br>
         ${e.detalle}
       </div>

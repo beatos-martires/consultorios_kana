@@ -37,8 +37,8 @@ async function cargarPacientes() {
     lista.innerHTML += `
       <div class="item">
         <strong>${p.nombre_completo}</strong><br>
+        DNI: ${p.dni || "-"}<br>
         Edad: ${p.edad || "-"}<br>
-        Área: ${p.area || "-"}<br>
         Obra social: ${p.obra_social || "-"}
       </div>
     `;
@@ -64,7 +64,10 @@ document.getElementById("pagoForm").addEventListener("submit", async (e) => {
 
   document.getElementById("resultadoPago").innerHTML = `
     <div class="item">
-      <strong>Total del mes:</strong> $${Number(data.total_mes).toFixed(2)}
+      <strong>Total calculado:</strong> $${Number(data.total_calculado || 0).toFixed(2)}<br>
+      <strong>Monto pagado:</strong> $${Number(data.monto_pagado || 0).toFixed(2)}<br>
+      <strong>Estado:</strong> ${data.estado || "pendiente"}<br>
+      <strong>Observaciones:</strong> ${data.observaciones || "-"}
     </div>
   `;
 });

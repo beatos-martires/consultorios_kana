@@ -105,3 +105,82 @@ button:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.check-item {
+  display: block;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #fafafa;
+}
+
+.check-item input {
+  width: auto;
+  margin-right: 8px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  text-align: center;
+}
+
+.stat-card p {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-check input {
+  width: auto;
+}
+
+.sep {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.grid-mini {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 1000px) {
+  .grid-4 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid-mini {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .topbar button,
+  button {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}

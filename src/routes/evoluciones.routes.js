@@ -8,21 +8,24 @@ router.post("/", auth, soloRoles("profesional"), async (req, res) => {
   try {
     const { paciente_id, detalle } = req.body;
 
-    const paciente = await pool.query(
-      "SELECT * FROM pacientes WHERE id = $1 AND area_id = $2",
-      [paciente_id, req.usuario.area_id]
-    );
+    const control = await pool.query(`
+      SELECT *
+      FROM paciente_profesionales
+      WHERE paciente_id = $1 AND profesional_id = $2
+    `, [paciente_id, req.usuario.id]);
 
-    if (paciente.rows.length === 0) {
-      return res.status(403).json({ error: "No podés cargar evolución para este paciente." });
+    if (control.rows.length === 0) {
+      return res.status(403).json({ error: "Este paciente no está asignado a este profesional." });
     }
+
+    const areaId = control.rows[0].area_id;
 
     const result = await pool.query(
       `INSERT INTO evoluciones_clinicas
-      (paciente_id, profesional_id, detalle)
-      VALUES ($1, $2, $3)
+      (paciente_id, profesional_id, area_id, detalle)
+      VALUES ($1, $2, $3, $4)
       RETURNING *`,
-      [paciente_id, req.usuario.id, detalle]
+      [paciente_id, req.usuario.id, areaId, detalle]
     );
 
     res.status(201).json(result.rows[0]);
@@ -38,10 +41,24 @@ router.get("/paciente/:id", auth, async (req, res) => {
       return res.json([]);
     }
 
+    if (req.usuario.rol === "profesional") {
+      const result = await pool.query(`
+        SELECT e.*, u.nombre_completo AS profesional, a.nombre AS area
+        FROM evoluciones_clinicas e
+        JOIN usuarios u ON e.profesional_id = u.id
+        JOIN areas a ON e.area_id = a.id
+        WHERE e.paciente_id = $1 AND e.profesional_id = $2
+        ORDER BY e.fecha DESC
+      `, [req.params.id, req.usuario.id]);
+
+      return res.json(result.rows);
+    }
+
     const result = await pool.query(`
-      SELECT e.*, u.nombre_completo AS profesional
+      SELECT e.*, u.nombre_completo AS profesional, a.nombre AS area
       FROM evoluciones_clinicas e
       JOIN usuarios u ON e.profesional_id = u.id
+      JOIN areas a ON e.area_id = a.id
       WHERE e.paciente_id = $1
       ORDER BY e.fecha DESC
     `, [req.params.id]);
