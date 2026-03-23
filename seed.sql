@@ -1,3 +1,6 @@
+INSERT INTO usuarios (nombre, dni, rol, telefono, email, activo)
+VALUES ('Secretaría General', '11111111', 'secretaria', '3825000000', 'secretaria@kana.com', TRUE);
+
 INSERT INTO usuarios (nombre, dni, rol, telefono, email, activo) VALUES
 ('Secretaría General', '11111111', 'secretaria', '3825000000', 'secretaria@kana.com', TRUE),
 ('Lic. Ana Pérez', '22222222', 'profesional', '3825111111', 'ana@kana.com', TRUE),
