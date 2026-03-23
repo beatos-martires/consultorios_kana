@@ -1,6 +1,6 @@
 const express = require("express");
 const pool = require("../db/connection");
-const uploadCud = require("../middlewares/uploadCud");
+const uploadCud = require("../middlewares/upload-cud");
 
 const router = express.Router();
 

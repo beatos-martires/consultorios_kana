@@ -1,6 +1,6 @@
 const express = require("express");
 const pool = require("../db/connection");
-const uploadInforme = require("../middlewares/uploadInforme");
+const uploadInforme = require("../middlewares/upload-informe");
 
 const router = express.Router();
 
