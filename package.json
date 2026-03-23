@@ -1,23 +1,17 @@
 {
-  "name": "consultorios-salud-postgres",
+  "name": "consultorios-kana",
   "version": "1.0.0",
-  "description": "Sistema para consultorios de salud con PostgreSQL",
-  "main": "src/server.js",
+  "description": "Sistema KANA con Express y PostgreSQL",
+  "main": "server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "exceljs": "^4.4.0",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
     "multer": "^2.1.1",
-    "pdfkit": "^0.18.0",
-    "pg": "^8.12.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.0"
+    "pg": "^8.16.3"
   }
 }

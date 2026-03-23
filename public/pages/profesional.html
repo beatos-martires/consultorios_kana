@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profesional - Consultorios KANA</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="contenedor">
+      <h1>Panel del Profesional</h1>
+      <p>Pacientes, observaciones e informes</p>
+      <a href="../../index.html" class="btn-volver">Volver al inicio</a>
+    </div>
+  </header>
+
+  <main class="contenedor panel-grid">
+    <section class="card">
+      <h2>Mis datos</h2>
+      <div id="datosProfesional"></div>
+    </section>
+
+    <section class="card">
+      <h2>Mis pacientes</h2>
+      <div class="campo">
+        <label for="pacienteProfesional">Seleccionar paciente</label>
+        <select id="pacienteProfesional">
+          <option value="">Seleccionar paciente</option>
+        </select>
+      </div>
+      <ul id="misPacientes"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Datos del paciente</h2>
+      <div id="datosPacienteProfesional"></div>
+    </section>
+
+    <section class="card">
+      <h2>Sesiones registradas</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th>Sesiones</th>
+            <th>Especialidad</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="tablaSesionesProfesional"></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Agregar observación</h2>
+      <form id="formObservacionProfesional">
+        <div class="campo">
+          <label for="textoObservacion">Observación</label>
+          <textarea id="textoObservacion" rows="6"></textarea>
+        </div>
+        <button type="submit" class="btn">Guardar observación</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Observaciones del paciente</h2>
+      <div id="listaObservaciones"></div>
+    </section>
+
+    <section class="card">
+      <h2>Subir informe PDF</h2>
+      <form id="formInformeProfesional" enctype="multipart/form-data">
+        <div class="campo">
+          <label for="archivoInforme">Archivo PDF</label>
+          <input type="file" id="archivoInforme" accept=".pdf">
+        </div>
+        <button type="submit" class="btn">Subir informe</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Informes del paciente</h2>
+      <div id="listaInformes"></div>
+    </section>
+  </main>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
