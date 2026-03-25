@@ -12,10 +12,15 @@ body {
 }
 
 .header {
-  background: #1f3c88;
+  background: #77448e;
   color: white;
   padding: 30px 20px;
   text-align: center;
+}
+
+.logo-kana{
+  height: 70px;
+  width: 70px;
 }
 
 .contenedor {
@@ -23,6 +28,8 @@ body {
   max-width: 1200px;
   margin: 30px auto;
 }
+    .titulo-principal{font-size: 40px;}
+    .subtitulo-principal {font-size: 25px;}
 
 .login-box,
 .card {
@@ -33,14 +40,15 @@ body {
 }
 
 .login-box {
-  max-width: 500px;
+  max-width: 400px;
   margin: 40px auto;
+  justify-items: center;
 }
 
 .login-box h2,
 .card h2 {
   margin-bottom: 20px;
-  color: #1f3c88;
+  color: #7979ec;
 }
 
 .campo {
@@ -73,6 +81,7 @@ body {
   text-decoration: none;
   cursor: pointer;
   font-size: 15px;
+  justify-content: center;
 }
 
 .btn:hover,
