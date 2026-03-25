@@ -478,7 +478,7 @@ function renderSecretaria() {
     detalle.innerHTML = `
       <p><strong>Paciente:</strong> ${paciente.nombre}</p>
       <p><strong>DNI:</strong> ${paciente.dni}</p>
-      <p><strong>Fecha de nacimiento:</strong> ${paciente.fecha_nacimiento || "-"}</p>
+      <p><strong>Fecha de nacimiento:</strong> ${paciente.fecha_nacimiento ? new Date(paciente.fecha_nacimiento).toLocaleDateString("es-AR") : "-"}</p>
       <p><strong>Tutor:</strong> ${paciente.tutor_nombre || nombreUsuarioPorId(paciente.tutor_usuario_id)}</p>
       ${paciente.cud_ruta ? `<p><strong>CUD:</strong> <a href="${paciente.cud_ruta}" target="_blank">Ver PDF</a></p>` : ""}
     `;
