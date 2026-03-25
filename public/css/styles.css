@@ -19,8 +19,8 @@ body {
 }
 
 .logo-kana{
-  height: 70px;
-  width: 70px;
+  height: 90px;
+  width: 90px;
 }
 
 .contenedor {
@@ -81,7 +81,6 @@ body {
   text-decoration: none;
   cursor: pointer;
   font-size: 15px;
-  justify-content: center;
 }
 
 .btn:hover,
