@@ -36,6 +36,7 @@ app.use("/api/sesiones", sesionesRoutes);
 app.use("/api/resumen", resumenRoutes);
 app.use("/api/observaciones", observacionesRoutes);
 app.use("/api/informes", informesRoutes);
+app.use("/api/tutor", require("./routes/tutor.routes"));
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

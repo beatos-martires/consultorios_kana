@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
   const API = {
-    auth: "/api/auth",
-    usuarios: "/api/usuarios",
-    especialidades: "/api/especialidades",
-    profesionales: "/api/profesionales",
-    pacientes: "/api/pacientes",
-    sesiones: "/api/sesiones",
-    resumen: "/api/resumen",
-    observaciones: "/api/observaciones",
-    informes: "/api/informes"
-  };
+  auth: "/api/auth",
+  usuarios: "/api/usuarios",
+  especialidades: "/api/especialidades",
+  profesionales: "/api/profesionales",
+  pacientes: "/api/pacientes",
+  sesiones: "/api/sesiones",
+  resumen: "/api/resumen",
+  observaciones: "/api/observaciones",
+  informes: "/api/informes",
+  tutorPacientes: "/api/tutor/pacientes",
+  tutorSesiones: "/api/tutor/sesiones"
+};
 
   const state = {
     usuarios: [],
@@ -83,20 +85,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function cargarDatosBase() {
+  const tutorActivoId = sessionStorage.getItem("tutorActivoId");
+  const profesionalActivoUsuarioId = sessionStorage.getItem("profesionalActivoUsuarioId");
+
+  const esTutor = !!tutorActivoId;
+  const esProfesional = !!profesionalActivoUsuarioId;
+
+  if (esTutor) {
     const resultados = await Promise.all([
-      fetchJSON(API.usuarios).catch(() => []),
-      fetchJSON(API.especialidades).catch(() => []),
-      fetchJSON(API.profesionales).catch(() => []),
-      fetchJSON(API.pacientes).catch(() => []),
-      fetchJSON(API.sesiones).catch(() => [])
+      fetchJSON(`${API.tutorPacientes}/${tutorActivoId}`).catch(() => []),
+      fetchJSON(`${API.tutorSesiones}/${tutorActivoId}`).catch(() => [])
     ]);
 
-    state.usuarios = resultados[0];
-    state.especialidades = resultados[1];
-    state.profesionales = resultados[2];
-    state.pacientes = resultados[3];
-    state.sesiones = resultados[4];
+    state.usuarios = [];
+    state.especialidades = [];
+    state.profesionales = [];
+    state.pacientes = resultados[0];
+    state.sesiones = resultados[1];
+    return;
   }
+
+  const resultados = await Promise.all([
+    fetchJSON(API.usuarios).catch(() => []),
+    fetchJSON(API.especialidades).catch(() => []),
+    fetchJSON(API.profesionales).catch(() => []),
+    fetchJSON(API.pacientes).catch(() => []),
+    fetchJSON(API.sesiones).catch(() => [])
+  ]);
+
+  state.usuarios = resultados[0];
+  state.especialidades = resultados[1];
+  state.profesionales = resultados[2];
+  state.pacientes = resultados[3];
+  state.sesiones = resultados[4];
+}
 
   function cargarSelectUsuariosProfesionales() {
     const select = document.getElementById("usuarioProfesional");
@@ -140,51 +162,54 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function cargarSelectPacientes() {
-    const select1 = document.getElementById("pacienteSesion");
-    const select2 = document.getElementById("pacienteTutor");
-    const select3 = document.getElementById("pacienteProfesional");
+  const select1 = document.getElementById("pacienteSesion");
+  const select2 = document.getElementById("pacienteTutor");
+  const select3 = document.getElementById("pacienteProfesional");
+  const profesionalActivoUsuarioId = sessionStorage.getItem("profesionalActivoUsuarioId");
+  const profesionalActivo = profesionalPorUsuarioId(profesionalActivoUsuarioId);
 
-    const tutorActivoId = sessionStorage.getItem("tutorActivoId");
-    const profesionalActivoUsuarioId = sessionStorage.getItem("profesionalActivoUsuarioId");
-    const profesionalActivo = profesionalPorUsuarioId(profesionalActivoUsuarioId);
+  if (select1) {
+    select1.innerHTML = `<option value="">Seleccionar</option>`;
+    state.pacientes.forEach(p => {
+      select1.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+    });
+  }
 
-    if (select1) {
-      select1.innerHTML = `<option value="">Seleccionar</option>`;
-      state.pacientes.forEach(p => {
-        select1.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
-      });
-    }
+  if (select2) {
+    select2.innerHTML = `<option value="">Seleccionar</option>`;
 
-    if (select2) {
-      let pacientesTutor = [...state.pacientes];
-      if (tutorActivoId) {
-        pacientesTutor = pacientesTutor.filter(p => String(p.tutor_usuario_id) === String(tutorActivoId));
-      }
+    state.pacientes.forEach(p => {
+      select2.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+    });
 
-      select2.innerHTML = `<option value="">Seleccionar</option>`;
-      pacientesTutor.forEach(p => {
-        select2.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
-      });
-    }
-
-    if (select3) {
-      let idsPacientes = [];
-      if (profesionalActivo) {
-        idsPacientes = [...new Set(
-          state.sesiones
-            .filter(s => String(s.profesional_id) === String(profesionalActivo.id))
-            .map(s => String(s.paciente_id))
-        )];
-      }
-
-      const pacientesProfesional = state.pacientes.filter(p => idsPacientes.includes(String(p.id)));
-
-      select3.innerHTML = `<option value="">Seleccionar paciente</option>`;
-      pacientesProfesional.forEach(p => {
-        select3.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
-      });
+    if (state.pacientes.length === 1) {
+      select2.value = state.pacientes[0].id;
+      select2.disabled = true;
+    } else {
+      select2.disabled = false;
     }
   }
+
+  if (select3) {
+    let idsPacientes = [];
+    if (profesionalActivo) {
+      idsPacientes = [...new Set(
+        state.sesiones
+          .filter(s => String(s.profesional_id) === String(profesionalActivo.id))
+          .map(s => String(s.paciente_id))
+      )];
+    }
+
+    const pacientesProfesional = state.pacientes.filter(p =>
+      idsPacientes.includes(String(p.id))
+    );
+
+    select3.innerHTML = `<option value="">Seleccionar paciente</option>`;
+    pacientesProfesional.forEach(p => {
+      select3.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+    });
+  }
+}
 
   function cargarSelectProfesionalesSesion() {
     const select = document.getElementById("profesionalSesion");
@@ -198,149 +223,178 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderListaUsuarios() {
-    const lista = document.getElementById("listaUsuarios");
-    const buscador = document.getElementById("buscarUsuario");
-    if (!lista) return;
+  function ocultarListaSiNoHayBusqueda(lista, buscador) {
+  if (!lista) return true;
 
-    let usuarios = [...state.usuarios];
-    const texto = buscador ? buscador.value.toLowerCase().trim() : "";
+  const texto = buscador ? buscador.value.toLowerCase().trim() : "";
 
-    if (texto) {
-      usuarios = usuarios.filter(u =>
-        `${u.nombre} ${u.dni} ${u.rol}`.toLowerCase().includes(texto)
-      );
-    }
-
-    lista.innerHTML = usuarios.length
-      ? usuarios.map(u => `
-          <li class="item-lista">
-            <span>${u.nombre} - DNI: ${u.dni} - Rol: ${u.rol} - ${u.activo ? "Activo" : "Inactivo"}</span>
-            <div class="acciones-lista">
-              <button class="btn-editar" onclick="window.editarUsuario('${u.id}')">Editar</button>
-              <button class="btn-eliminar" onclick="window.eliminarUsuario('${u.id}')">Eliminar</button>
-            </div>
-          </li>
-        `).join("")
-      : "<li>No hay usuarios cargados.</li>";
+  if (!texto) {
+    lista.innerHTML = "";
+    lista.style.display = "none";
+    return true;
   }
 
-  function renderListaEspecialidades() {
-    const lista = document.getElementById("listaEspecialidades");
-    const buscador = document.getElementById("buscarEspecialidad");
-    if (!lista) return;
+  lista.style.display = "block";
+  return false;
+}
 
-    let items = [...state.especialidades];
-    const texto = buscador ? buscador.value.toLowerCase().trim() : "";
+function renderListaUsuarios() {
+  const lista = document.getElementById("listaUsuarios");
+  const buscador = document.getElementById("buscarUsuario");
+  if (!lista) return;
 
-    if (texto) {
-      items = items.filter(i => i.nombre.toLowerCase().includes(texto));
-    }
+  if (ocultarListaSiNoHayBusqueda(lista, buscador)) return;
 
-    lista.innerHTML = items.length
-      ? items.map(i => `
-          <li class="item-lista">
-            <span>${i.nombre} - ${formatearMonto(i.precio_sesion)}</span>
-            <div class="acciones-lista">
-              <button class="btn-editar" onclick="window.editarEspecialidad('${i.id}')">Editar</button>
-              <button class="btn-eliminar" onclick="window.eliminarEspecialidad('${i.id}')">Eliminar</button>
-            </div>
-          </li>
-        `).join("")
-      : "<li>No hay especialidades cargadas.</li>";
+  const texto = buscador.value.toLowerCase().trim();
+
+  const usuarios = state.usuarios.filter(u =>
+    `${u.nombre || ""} ${u.dni || ""} ${u.rol || ""}`.toLowerCase().includes(texto)
+  );
+
+  lista.innerHTML = usuarios.length
+    ? usuarios.map(u => `
+        <li class="item-lista">
+          <span>${u.nombre} - DNI: ${u.dni} - Rol: ${u.rol} - ${u.activo ? "Activo" : "Inactivo"}</span>
+          <div class="acciones-lista">
+            <button class="btn-editar" onclick="window.editarUsuario('${u.id}')">Editar</button>
+            <button class="btn-eliminar" onclick="window.eliminarUsuario('${u.id}')">Eliminar</button>
+          </div>
+        </li>
+      `).join("")
+    : "<li>No se encontraron usuarios.</li>";
+}
+
+function renderListaEspecialidades() {
+  const lista = document.getElementById("listaEspecialidades");
+  const buscador = document.getElementById("buscarEspecialidad");
+  if (!lista) return;
+
+  if (ocultarListaSiNoHayBusqueda(lista, buscador)) return;
+
+  const texto = buscador.value.toLowerCase().trim();
+
+  const items = state.especialidades.filter(i =>
+    `${i.nombre || ""} ${i.precio || ""}`.toLowerCase().includes(texto)
+  );
+
+  lista.innerHTML = items.length
+    ? items.map(i => `
+        <li class="item-lista">
+          <span>${i.nombre} - ${formatearMonto(i.precio)}</span>
+          <div class="acciones-lista">
+            <button class="btn-editar" onclick="window.editarEspecialidad('${i.id}')">Editar</button>
+            <button class="btn-eliminar" onclick="window.eliminarEspecialidad('${i.id}')">Eliminar</button>
+          </div>
+        </li>
+      `).join("")
+    : "<li>No se encontraron especialidades.</li>";
+}
+
+function renderListaProfesionales() {
+  const lista = document.getElementById("listaProfesionales");
+  const buscador = document.getElementById("buscarProfesional");
+  if (!lista) return;
+
+  if (ocultarListaSiNoHayBusqueda(lista, buscador)) return;
+
+  const texto = buscador.value.toLowerCase().trim();
+
+  const items = state.profesionales.filter(i =>
+    `${i.nombre || ""} ${i.especialidad_nombre || ""}`.toLowerCase().includes(texto)
+  );
+
+  lista.innerHTML = items.length
+    ? items.map(i => `
+        <li class="item-lista">
+          <span>${i.nombre} - ${i.especialidad_nombre}</span>
+          <div class="acciones-lista">
+            <button class="btn-editar" onclick="window.editarProfesional('${i.id}')">Editar</button>
+            <button class="btn-eliminar" onclick="window.eliminarProfesional('${i.id}')">Eliminar</button>
+          </div>
+        </li>
+      `).join("")
+    : "<li>No se encontraron profesionales.</li>";
+}
+
+function renderListaPacientes() {
+  const lista = document.getElementById("listaPacientes");
+  const buscador = document.getElementById("buscarPaciente");
+  if (!lista) return;
+
+  if (ocultarListaSiNoHayBusqueda(lista, buscador)) return;
+
+  const texto = buscador.value.toLowerCase().trim();
+
+  const items = state.pacientes.filter(i =>
+    `${i.nombre || ""} ${i.dni || ""} ${i.tutor_nombre || nombreUsuarioPorId(i.tutor_usuario_id) || ""}`
+      .toLowerCase()
+      .includes(texto)
+  );
+
+  lista.innerHTML = items.length
+    ? items.map(i => `
+        <li class="item-lista">
+          <span>
+            ${i.nombre} - Tutor: ${i.tutor_nombre || nombreUsuarioPorId(i.tutor_usuario_id)}
+            ${i.cud_ruta ? ` - <a href="${i.cud_ruta}" target="_blank">Ver CUD</a>` : ""}
+          </span>
+          <div class="acciones-lista">
+            <button class="btn-editar" onclick="window.editarPaciente('${i.id}')">Editar</button>
+            <button class="btn-eliminar" onclick="window.eliminarPaciente('${i.id}')">Eliminar</button>
+          </div>
+        </li>
+      `).join("")
+    : "<li>No se encontraron pacientes.</li>";
+}
+
+function renderListaSesiones() {
+  const lista = document.getElementById("listaSesiones");
+  const buscador = document.getElementById("buscarSesion");
+  if (!lista) return;
+
+  if (ocultarListaSiNoHayBusqueda(lista, buscador)) return;
+
+  const texto = buscador.value.toLowerCase().trim();
+
+  const items = state.sesiones.filter(i =>
+    `${i.paciente_nombre || ""} ${i.profesional_nombre || ""} ${i.especialidad_nombre || ""} ${i.mes || ""} ${i.anio || ""}`
+      .toLowerCase()
+      .includes(texto)
+  );
+
+  lista.innerHTML = items.length
+    ? items.map(i => `
+        <li class="item-lista">
+          <span>${i.paciente_nombre} - ${i.profesional_nombre} - ${i.especialidad_nombre} - ${i.mes} ${i.anio} - ${i.cantidad} sesiones - ${formatearMonto(i.subtotal)}</span>
+          <div class="acciones-lista">
+            <button class="btn-editar" onclick="window.editarSesion('${i.id}')">Editar</button>
+            <button class="btn-eliminar" onclick="window.eliminarSesion('${i.id}')">Eliminar</button>
+          </div>
+        </li>
+      `).join("")
+    : "<li>No se encontraron sesiones.</li>";
+}
+
+  function renderTutor() {
+  const pacienteSelect = document.getElementById("pacienteTutor");
+
+  if (pacienteSelect && state.pacientes.length === 1) {
+    pacienteSelect.value = state.pacientes[0].id;
+    pacienteSelect.disabled = true;
+  } else if (pacienteSelect) {
+    pacienteSelect.disabled = false;
   }
 
-  function renderListaProfesionales() {
-    const lista = document.getElementById("listaProfesionales");
-    const buscador = document.getElementById("buscarProfesional");
-    if (!lista) return;
+  obtenerResumenTutorActual();
+}
 
-    let items = [...state.profesionales];
-    const texto = buscador ? buscador.value.toLowerCase().trim() : "";
-
-    if (texto) {
-      items = items.filter(i =>
-        `${i.nombre} ${i.especialidad_nombre}`.toLowerCase().includes(texto)
-      );
-    }
-
-    lista.innerHTML = items.length
-      ? items.map(i => `
-          <li class="item-lista">
-            <span>${i.nombre} - ${i.especialidad_nombre}</span>
-            <div class="acciones-lista">
-              <button class="btn-editar" onclick="window.editarProfesional('${i.id}')">Editar</button>
-              <button class="btn-eliminar" onclick="window.eliminarProfesional('${i.id}')">Eliminar</button>
-            </div>
-          </li>
-        `).join("")
-      : "<li>No hay profesionales cargados.</li>";
-  }
-
-  function renderListaPacientes() {
-    const lista = document.getElementById("listaPacientes");
-    const buscador = document.getElementById("buscarPaciente");
-    if (!lista) return;
-
-    let items = [...state.pacientes];
-    const texto = buscador ? buscador.value.toLowerCase().trim() : "";
-
-    if (texto) {
-      items = items.filter(i =>
-        `${i.nombre} ${i.dni} ${i.tutor_nombre || nombreUsuarioPorId(i.tutor_usuario_id)}`.toLowerCase().includes(texto)
-      );
-    }
-
-    lista.innerHTML = items.length
-      ? items.map(i => `
-          <li class="item-lista">
-            <span>
-              ${i.nombre} - Tutor: ${i.tutor_nombre || nombreUsuarioPorId(i.tutor_usuario_id)}
-              ${i.cud_ruta ? `- <a href="${i.cud_ruta}" target="_blank">Ver CUD</a>` : ""}
-            </span>
-            <div class="acciones-lista">
-              <button class="btn-editar" onclick="window.editarPaciente('${i.id}')">Editar</button>
-              <button class="btn-eliminar" onclick="window.eliminarPaciente('${i.id}')">Eliminar</button>
-            </div>
-          </li>
-        `).join("")
-      : "<li>No hay pacientes cargados.</li>";
-  }
-
-  function renderListaSesiones() {
-    const lista = document.getElementById("listaSesiones");
-    const buscador = document.getElementById("buscarSesion");
-    if (!lista) return;
-
-    let items = [...state.sesiones];
-    const texto = buscador ? buscador.value.toLowerCase().trim() : "";
-
-    if (texto) {
-      items = items.filter(i =>
-        `${i.paciente_nombre} ${i.profesional_nombre} ${i.especialidad_nombre} ${i.mes} ${i.anio}`.toLowerCase().includes(texto)
-      );
-    }
-
-    lista.innerHTML = items.length
-      ? items.map(i => `
-          <li class="item-lista">
-            <span>${i.paciente_nombre} - ${i.profesional_nombre} - ${i.especialidad_nombre} - ${i.mes} ${i.anio} - ${i.cantidad} sesiones - ${formatearMonto(i.subtotal)}</span>
-            <div class="acciones-lista">
-              <button class="btn-editar" onclick="window.editarSesion('${i.id}')">Editar</button>
-              <button class="btn-eliminar" onclick="window.eliminarSesion('${i.id}')">Eliminar</button>
-            </div>
-          </li>
-        `).join("")
-      : "<li>No hay sesiones cargadas.</li>";
-  }
-
-  function renderSecretaria() {
-    renderListaUsuarios();
-    renderListaEspecialidades();
-    renderListaProfesionales();
-    renderListaPacientes();
-    renderListaSesiones();
-  }
+function renderSecretaria() {
+  renderListaUsuarios();
+  renderListaEspecialidades();
+  renderListaProfesionales();
+  renderListaPacientes();
+  renderListaSesiones();
+}
 
   async function renderResumenAdministrativo() {
     const total = document.getElementById("totalGeneralResumen");
