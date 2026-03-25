@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db"); // o la ruta real de tu conexión
+const pool = require("../db/connection"); // o la ruta real de tu conexión
 
 router.get("/pacientes/:tutorId", async (req, res) => {
   const { tutorId } = req.params;
